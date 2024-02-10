@@ -8,8 +8,8 @@ test_time_astar = False
 test_time_gbfs = False
 test_manhattan = False
 test_fval_function = False
-test_iterative_gbfs = True
-test_alternate = False
+test_iterative_gbfs = False
+test_alternate = True
 test_iterative_astar = False
 test_weighted_astar = False
 
@@ -107,7 +107,7 @@ def test_alternate_fun():
 
         s0 = PROBLEMS[i]  # Problems get harder as i gets bigger
         se = SearchEngine('best_first', 'full')
-        se.init_search(s0, goal_fn=sokoban_goal_state, heur_fn=heur_alternate)
+        se.init_search(s0, goal_fn=sokoban_goal_state, heur_fn=heur_alternate_2)
         
         import cProfile, pstats
         profiler = cProfile.Profile()
@@ -117,7 +117,7 @@ def test_alternate_fun():
         pstats.Stats(profiler).sort_stats('tottime').print_stats()
 
         if final:
-            # final.print_path()
+            final.print_path()
             solved += 1
         else:
             unsolved.append(i)
@@ -223,7 +223,7 @@ def test_iterative_astar_fun():
 
         s0 = PROBLEMS[i]  # Problems get harder as i gets bigger
         weight = 10  # note that if you want to over-ride this initial weight in your implementation, you are welcome to!
-        final, stats = iterative_astar(s0, heur_fn=heur_alternate, weight=weight, timebound=timebound)
+        final, stats = iterative_astar(s0, heur_fn=heur_alternate_2, weight=weight, timebound=timebound)
 
         if final:
             # final.print_path()

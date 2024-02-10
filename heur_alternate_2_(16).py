@@ -1,4 +1,4 @@
-def heur_alternate(state):
+def heur_alternate_2(state):
     
     total_distance = 0
     
@@ -18,19 +18,19 @@ def heur_alternate(state):
     # then calculate the distance of each box to its assigned storage point (consider obstacles)
     # consider each storage point and find whether there is a wall attached to it (but why?)
 
-    boxes = boxes - storages # remove boxes that are already in storage points
-    storages = storages - boxes # remove storage points that already have boxes
+    # boxes = boxes - storages # remove boxes that are already in storage points
+    # storages = storages - boxes # remove storage points that already have boxes
 
     for box in boxes:
-        if is_box_deadlocked(box, obstacles, storages, height, width):
-            return float('inf')
+        # if is_box_deadlocked(box, obstacles, storages, height, width):
+        #     total_distance = 50
         
         # there are no deadlocked boxes, assign each box to its nearest storage point
         min_distance = float('inf')
         nearest_storage = None
         for storage in storages:
-            # distance = calculate_manhattan_distance_with_obstacles(box, storage, obstacles)
-            distance = calculate_manhattan_distance(box, storage)
+            # distance = calculate_manhattan_distance(bo, stoarage)
+            distance = calculate_manhattan_distance_with_obstacles(box, storage, obstacles)
             if distance < min_distance:
                 min_distance = distance
                 nearest_storage = storage
@@ -69,8 +69,7 @@ def calculate_manhattan_distance_with_obstacles(start_pos, end_pos, obstacles):
 
 
 def is_box_deadlocked(box_pos, obstacles, storages, height, width):
-
-    bx, by = box_pos
+    bx, by = box_pos # cgeck for storage bc its not infinite # check for 2x2
 
     blocked_sides = [False, False, False, False]
     # 0 : up, 
@@ -79,16 +78,16 @@ def is_box_deadlocked(box_pos, obstacles, storages, height, width):
     # 3: left
 
     # check box above
-    if by + 1 == height - 1 or (bx, by + 1) in obstacles:
+    if by + 1 == height or (bx, by + 1) in obstacles:
         blocked_sides[0] = True
     # check box to the right
-    elif bx + 1 == width - 1 or (bx + 1, by) in obstacles:
+    elif bx + 1 == width or (bx + 1, by) in obstacles:
         blocked_sides[1] = True
     # check box below
-    elif by - 1 == 0 or (bx, by - 1) in obstacles:
+    elif by - 1 < 0 or (bx, by - 1) in obstacles:
         blocked_sides[2] = True
     # check box to the left
-    elif bx - 1 == 0 or (bx - 1, by) in obstacles:
+    elif bx - 1 < 0 or (bx - 1, by) in obstacles:
         blocked_sides[3] = True
     
     # check if box is in a corner (corner is defined as at least two adjacent sides being blocked))
@@ -98,6 +97,14 @@ def is_box_deadlocked(box_pos, obstacles, storages, height, width):
                     (blocked_sides[3] and blocked_sides[0])
     
     if is_in_corner: # this checks if box is in a corner (2 or more sides are blocked)
+        if (bx, by + 1) in storages: # check above
+            return False
+        elif (bx + 1, by) in storages:  # check to right
+            return False
+        elif (bx, by - 1) in storages:  # check below
+            return False
+        elif (bx - 1, by) in storages:  # check left
+            return False 
         return True
     
     if blocked_sides[0] == False and blocked_sides[2] == False and blocked_sides[1] == False and blocked_sides[3] == False: # this is a free box
@@ -112,4 +119,6 @@ def is_box_deadlocked(box_pos, obstacles, storages, height, width):
         for storage in storages:
             if by == storage[1]:
                 return False
+            
+
     return True
