@@ -78,11 +78,39 @@ def heur_alternate_2(state):
     obstacles = set(state.obstacles)
     width = state.width
     height = state.height
+    
+
+    edge_boxes = set()
+    for box in boxes:
+        if box[0] == 0 or box[0] == width - 1 or box[1] == 0 or box[1] == height - 1:
+            edge_boxes.add(box)
+    
+    boxes = boxes - edge_boxes
+    
+
+    for edge_box in edge_boxes:
+        if is_box_deadlocked(edge_box, obstacles, storages, height, width):
+            total_distance = 50
+        min_distance = float('inf')
+        nearest_storage = None
+        for storage in storages:
+            if storage[0] == edge_box[0] or storage[1] == edge_box[1]:
+                # distance = calculate_manhattan_distance(bo, stoarage)
+                distance = calculate_manhattan_distance_with_obstacles(edge_box, storage, obstacles)
+                if distance < min_distance:
+                    min_distance = distance
+                    nearest_storage = storage
+        if nearest_storage is not None:
+            storages.remove(nearest_storage)
+        else:
+            return float('inf')
+        total_distance += min_distance
 
 
     for box in boxes:
-        # if is_box_deadlocked(box, obstacles, storages, height, width):
-        #     total_distance = 50
+
+        if is_box_deadlocked(box, obstacles, storages, height, width):
+            total_distance = 50
         
         # there are no deadlocked boxes, assign each box to its nearest storage point
         min_distance = float('inf')
@@ -267,7 +295,7 @@ def assign_storage_to_boxes(state):
     
     def f():
         for box in state.boxes:
-            is_edge, edge_type = is_edge_box(box, state.width, state.height)
+            is_edge, edge_type = is_at_edge(box, state.width, state.height)
             if is_edge:
                 if edge_type in ["left", "right"]:
                     # Look for a storage with the same x coordinate
@@ -306,14 +334,14 @@ def assign_storage_to_boxes(state):
     
     return assignments
 
-def is_edge_box(box_pos, width, height):
-    if box_pos[0] == 0:
+def is_at_edge(pos, width, height):
+    if pos[0] == 0:
         edge_type = "left"
-    elif box_pos[0] == width - 1:
+    elif pos[0] == width - 1:
         edge_type = "right"
-    elif box_pos[1] == 0:
+    elif pos[1] == 0:
         edge_type = "bottom"
-    elif box_pos[1] == height - 1:
+    elif pos[1] == height - 1:
         edge_type = "top"
     else:
         return False, None  # Not an edge box
